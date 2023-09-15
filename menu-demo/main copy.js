@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require('electron')
+const { app, BrowserWindow, Menu } = require('electron')
 const path = require('path')
 
 // 打开窗口
@@ -17,6 +17,11 @@ const createWindow = () => {
   require('@electron/remote/main').initialize()
   require('@electron/remote/main').enable(mainWin.webContents)
 
+  let menuTemp = [{ label: '文件' }, { label: '编辑' }]
+  // 利用上述的模板生成一个菜单
+  let menu = Menu.buildFromTemplate(menuTemp)
+  // 建立联系
+  Menu.setApplicationMenu(menu)
   mainWin.openDevTools() // 打开开发者工具
   mainWin.loadFile('index.html')
 
@@ -24,19 +29,31 @@ const createWindow = () => {
     mainWin.show()
   })
 
-  // 主进程接收消息操作
-  ipcMain.on('msg1', (ev, data) => {
-    console.log('data:', data)
-    ev.sender.send('msg1Re', '主进程回送消息--')
+  mainWin.webContents.on('did-finish-load', () => {
+    console.log('333333 ---- did-finish-load')
+  })
+  mainWin.webContents.on('dom-ready', () => {
+    console.log('222222 ---- dom-ready')
   })
   mainWin.on('close', () => {
-    mainWin = null
+    console.log('8888888 ---- this win is closed')
   })
 }
 app.on('ready', () => {
+  console.log('1111111 ---- ready')
   createWindow()
 })
 // 关闭所有窗口时退出应用 (Windows & Linux)
 app.on('window-all-closed', () => {
+  console.log('444444 ---- window-all-closed')
   if (process.platform !== 'darwin') app.quit()
+})
+app.on('before-quit', () => {
+  console.log('555555 ---- before-quit')
+})
+app.on('will-quit', () => {
+  console.log('6666666 ---- will-quit')
+})
+app.on('quit', () => {
+  console.log('777777 ---- quit')
 })

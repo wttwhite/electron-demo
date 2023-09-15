@@ -1,10 +1,11 @@
-window.addEventListener("DOMContentLoaded", () => {
-  const replaceText = (selector, text) => {
-    const element = document.getElementById(selector);
-    if (element) element.innerText = text;
-  };
-
-  for (const dependency of ["chrome", "node", "electron"]) {
-    replaceText(`${dependency}-version`, process.versions[dependency]);
-  }
-});
+const remote = require('@electron/remote')
+const { ipcRenderer } = require('electron')
+window.addEventListener('DOMContentLoaded', () => {
+  const btn = document.getElementById('btn')
+  btn.addEventListener('click', () => {
+    ipcRenderer.send('msg1', '异步消息')
+  })
+  ipcRenderer.on('msg1Re', (ev, data) => {
+    console.log('渲染进程接收到的的消息', data)
+  })
+})
